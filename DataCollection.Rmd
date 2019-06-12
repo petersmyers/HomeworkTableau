@@ -47,6 +47,27 @@ all = rbind(`201801`, `201802`, `201803`, `201804`, `201805`, `201806`, `201807`
             `201810`, `201811`, `201812`, `201401`, `201401`, `201402`, `201403`, `201404`, `201405`, 
             `201406`, `201407`, `201408`, `201409`, `201410`, `201411`, `201412`)
 
-# Time to save this giant file and see if I really fucked it up by having nearly 9M rows.... YAY!
-write.csv(all, file = "CitiBike2014and2018.csv")
+# Oh Fuck. This new matrix is nearly 26M rows long. 
+# Tableau only allows for 15M rows.
+# Gotta remove some shit and will try to do this as randomly as possible so as to not impact any given variable more than the others... let's borrow a bit from machine learning and randomly pull a "training" dataset!
+all_index <- sample(1:nrow(all), 0.038 * nrow(all))
+all_train <- all[all_index, -16]
+
+# some data cleaning
+# Remove some "na"s in any field
+all_train_clean <- na.omit(all_train)
+
+# Remove some odd "birth years"
+all_train_clean <- all_train_clean[!(all_train_clean$birth.year == "\\N"),]
+
+# Remove some people who clearly lied about their ages
+all_train_clean <- all_train_clean[!(all_train_clean$birth.year < 1929),]
+
+all_train_clean <- na.omit(all_train_clean)
+# Exporet the "training" dataset
+write.csv(all_train_clean, file = "CitiBike2014and2018_1M.csv")
+
+# Expore the FULL dataset!
+# write.csv(all, file = "CitiBike2014and2018.csv")
+
 ```
